@@ -12,6 +12,8 @@
   - 10-kilohm resistor attached from pin 4 to ground.
   
   - NOTE: Please be careful what the device is plugged into and what has focus, or bad things can happen.
+
+  - 2015-10-28 Changes to remove state, simply behaves as keyboard.
   
  */
 
@@ -30,10 +32,6 @@ const int refreshButtonPin = 4;
 // Input pin for the screen toggle light sensor.
 const int screenToggleLightSensorPin = A0;
 
-// Device state, independent of button state.
-// 1 = ON
-// 0 = OFF
-int currentDeviceState = 1;
 
 // Storing previous state of the screen toggle push button.
 int previousScreenToggleButtonState = HIGH;
@@ -76,9 +74,13 @@ void setup()
 void loop() 
 {
 
+  //
+  // Handle screen toggle button.
+  //
+
+
   // Read the screen toggle light sensor.
   int screenToggleLightSensorState = analogRead(screenToggleLightSensorPin);
-  
   
   // Read the screen toggle push button.
   int screenToggleButtonState = digitalRead(screenToggleButtonPin);
@@ -94,7 +96,7 @@ void loop()
     // Save the current light sensor state.      
     previousScreenToggleLightSensorState = screenToggleLightSensorState;
     
-    // Wait for a second, blocking more button presses and then turn the led off.
+    // Wait, blocking more button presses and then turn the led off.
     delay(200);
     digitalWrite(led, LOW);
   }
@@ -104,11 +106,52 @@ void loop()
   
   
   //
+  // Handle screen toggle light sensor.
   //
-  //
-    
+
   
-  // Read the screen toggle push button.
+  int diff = previousScreenToggleLightSensorState - screenToggleLightSensorState;
+  
+  // If the light level has changed enough, toggle the device status.
+  if( diff > 200 )
+  {
+    Serial.println("Light sensor state has brightened and current state is off, turning on.");
+    
+    Serial.print("    previousScreenToggleLightSensorState: ");
+    Serial.println(previousScreenToggleLightSensorState);
+    
+    Serial.print("    screenToggleLightSensorState: ");
+    Serial.println(screenToggleLightSensorState);
+    
+    toggleDevice();
+    
+    // Save the current light sensor state.      
+    previousScreenToggleLightSensorState = screenToggleLightSensorState;
+    
+  }
+  else if( diff < -250 )
+  {
+    Serial.println("Light sensor state has dimmed and current state is on, turning off.");
+    
+    Serial.print("    previousScreenToggleLightSensorState: ");
+    Serial.println(previousScreenToggleLightSensorState);
+    
+    Serial.print("    screenToggleLightSensorState: ");
+    Serial.println(screenToggleLightSensorState);
+    
+    toggleDevice();
+    
+    // Save the current light sensor state.      
+    previousScreenToggleLightSensorState = screenToggleLightSensorState;
+  }
+
+  
+  //
+  // Handle screen refresh push button.
+  //
+
+
+  // Read the refresh push button.
   int refreshButtonState = digitalRead(refreshButtonPin);
 
   // If the refresh button state has changed.
@@ -130,79 +173,18 @@ void loop()
   
   // Save the current button state.
   previousRefreshButtonState = refreshButtonState;
-  
-  
-  //
-  //
-  //
-  
-  int diff = previousScreenToggleLightSensorState - screenToggleLightSensorState;
-  
-  // If the light level has changed enough, toggle the device status.
-  if( (diff > 200) && (currentDeviceState == 0) )
-  {
-    Serial.println("Light sensor state has brightened and current state is off, turning on.");
-    
-    Serial.print("    previousScreenToggleLightSensorState: ");
-    Serial.println(previousScreenToggleLightSensorState);
-    
-    Serial.print("    screenToggleLightSensorState: ");
-    Serial.println(screenToggleLightSensorState);
-    
-    toggleDevice();
-    
-    // Save the current light sensor state.      
-    previousScreenToggleLightSensorState = screenToggleLightSensorState;
-    
-  }
-  else if( (diff < -250) && (currentDeviceState == 1) )
-  {
-    Serial.println("Light sensor state has dimmed and current state is on, turning off.");
-    
-    Serial.print("    previousScreenToggleLightSensorState: ");
-    Serial.println(previousScreenToggleLightSensorState);
-    
-    Serial.print("    screenToggleLightSensorState: ");
-    Serial.println(screenToggleLightSensorState);
-    
-    toggleDevice();
-    
-    // Save the current light sensor state.      
-    previousScreenToggleLightSensorState = screenToggleLightSensorState;
-  }
-  
-  
 
 }
 
 
 void toggleDevice() 
 {
-      
-  if (currentDeviceState == 1)
-  {
-    Serial.println("Device state is currently on, turning off.");
+  Serial.println("Sending button press.");
     
-    // Send a WINDOWS-0 key combination.
-    Keyboard.press(KEY_LEFT_GUI);
-    Keyboard.press('0');
-    delay(100);
-    Keyboard.releaseAll();
-    
-    currentDeviceState = 0;
-  }
-  else if (currentDeviceState == 0)
-  {
-    Serial.println("Device state is currently off, turning on.");
-    
-    // Send a WINDOWS-0 key combination.
-    Keyboard.press(KEY_LEFT_GUI);
-    Keyboard.press('1');
-    delay(100);
-    Keyboard.releaseAll();
-  
-    currentDeviceState = 1;
-  }
-  
+  // Send a WINDOWS-0 key combination.
+  Keyboard.press(KEY_LEFT_GUI);
+  Keyboard.press('0');
+  delay(100);
+  Keyboard.releaseAll();  
 }
 
