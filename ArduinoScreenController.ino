@@ -91,13 +91,12 @@ void loop()
     // Turn the led on to indicate button press processed and key combination sent.
     digitalWrite(led, HIGH);
     
-    toggleDevice();
+    deviceToggle();
     
-    // Save the current light sensor state.      
+    // Save the current light sensor state, so that the light from the screen doesn't trigger a toggle.
     previousScreenToggleLightSensorState = screenToggleLightSensorState;
     
     // Wait, blocking more button presses and then turn the led off.
-    delay(200);
     digitalWrite(led, LOW);
   }
   
@@ -115,7 +114,7 @@ void loop()
   // If the light level has changed enough, toggle the device status.
   if( diff > 200 )
   {
-    Serial.println("Light sensor state has brightened and current state is off, turning on.");
+    Serial.println("Light sensor state has brightened, turning on.");
     
     Serial.print("    previousScreenToggleLightSensorState: ");
     Serial.println(previousScreenToggleLightSensorState);
@@ -123,15 +122,15 @@ void loop()
     Serial.print("    screenToggleLightSensorState: ");
     Serial.println(screenToggleLightSensorState);
     
-    toggleDevice();
+    deviceOn();
     
     // Save the current light sensor state.      
     previousScreenToggleLightSensorState = screenToggleLightSensorState;
     
   }
-  else if( diff < -250 )
+  else if( diff < -200 )
   {
-    Serial.println("Light sensor state has dimmed and current state is on, turning off.");
+    Serial.println("Light sensor state has dimmed, turning off.");
     
     Serial.print("    previousScreenToggleLightSensorState: ");
     Serial.println(previousScreenToggleLightSensorState);
@@ -139,7 +138,7 @@ void loop()
     Serial.print("    screenToggleLightSensorState: ");
     Serial.println(screenToggleLightSensorState);
     
-    toggleDevice();
+    deviceOff();
     
     // Save the current light sensor state.      
     previousScreenToggleLightSensorState = screenToggleLightSensorState;
@@ -165,7 +164,7 @@ void loop()
     // Send a control-r key combination.
     Keyboard.press(ctrlKey);
     Keyboard.press('r');
-    delay(100);
+    delay(50);
     Keyboard.releaseAll();
     
     digitalWrite(led, LOW);
@@ -177,14 +176,38 @@ void loop()
 }
 
 
-void toggleDevice() 
+void deviceOff() 
 {
-  Serial.println("Sending button press.");
+  Serial.println("Sending device off");
     
   // Send a WINDOWS-0 key combination.
   Keyboard.press(KEY_LEFT_GUI);
   Keyboard.press('0');
-  delay(100);
+  delay(50);
+  Keyboard.releaseAll();  
+}
+
+
+void deviceOn() 
+{
+  Serial.println("Sending device on");
+    
+  // Send a WINDOWS-1 key combination.
+  Keyboard.press(KEY_LEFT_GUI);
+  Keyboard.press('1');
+  delay(50);
+  Keyboard.releaseAll();  
+}
+
+
+void deviceToggle() 
+{
+  Serial.println("Sending device toggle");
+    
+  // Send a WINDOWS-3 key combination.
+  Keyboard.press(KEY_LEFT_GUI);
+  Keyboard.press('3');
+  delay(50);
   Keyboard.releaseAll();  
 }
 
