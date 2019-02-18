@@ -1,5 +1,5 @@
-ArduinoScreenControllerListener
-===============================
+Arduino Screen Controller
+=========================
 
 - Listener that evaluates state:
 
