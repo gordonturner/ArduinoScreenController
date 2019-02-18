@@ -181,7 +181,10 @@ void deviceOff()
   Serial.println("Sending device off");
     
   // Send a WINDOWS-0 key combination.
-  Keyboard.press(KEY_LEFT_GUI);
+  //  Keyboard.press(KEY_LEFT_GUI);
+  //  Keyboard.press('0');
+  // Send Control 0
+  Keyboard.press(ctrlKey);
   Keyboard.press('0');
   delay(50);
   Keyboard.releaseAll();  
@@ -193,7 +196,10 @@ void deviceOn()
   Serial.println("Sending device on");
     
   // Send a WINDOWS-1 key combination.
-  Keyboard.press(KEY_LEFT_GUI);
+  //  Keyboard.press(KEY_LEFT_GUI);
+  //  Keyboard.press('1');
+  // Send Control 1
+  Keyboard.press(ctrlKey);
   Keyboard.press('1');
   delay(50);
   Keyboard.releaseAll();  
@@ -205,8 +211,11 @@ void deviceToggle()
   Serial.println("Sending device toggle");
     
   // Send a WINDOWS-3 key combination.
-  Keyboard.press(KEY_LEFT_GUI);
-  Keyboard.press('3');
+  //  Keyboard.press(KEY_LEFT_GUI);
+  //  Keyboard.press('3');
+  // Send Control 2
+  Keyboard.press(ctrlKey);
+  Keyboard.press('2');
   delay(50);
   Keyboard.releaseAll();  
 }
